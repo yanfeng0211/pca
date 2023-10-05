@@ -7,7 +7,7 @@ clc;clear;close all;
 % load sample data and plot------------------------------------------------
 load('data.mat')
  
-figure
+figure(1)
 hold on
 gscatter(X(:, 1), X(:, 2), Y)
 plot(Xtest(:, 1), Xtest(:, 2), 'LineStyle', 'none', 'Marker', '>')
@@ -21,6 +21,9 @@ title('original data')
 % setting 'AutoScale' true is reccomended (default:false)
 kpca = KernelPca(X, 'gaussian', 'gamma', 2.5, 'AutoScale', true);
 
+% 插入新的kpca算法
+data_new=kpcafun(X,50);
+data_project=data_new(:,1:2);
 % set the subspace dimention number M of projected data
 % (M <= D, where D is the dimention of the original data)
 M = 2;
@@ -33,7 +36,7 @@ projected_Xtest = project(kpca, Xtest, M);
 
 
 % plot
-figure
+figure(2)
 hold on
 gscatter(projected_X(:, 1), projected_X(:, 2), Y)
 plot(projected_Xtest(:, 1), projected_Xtest(:, 2), 'LineStyle', 'none', 'Marker', '>')
@@ -42,3 +45,11 @@ xlabel('principal dim')
 ylabel('second dim')
 legend(["projected X (class1)", "projected X (class2)", "projected X (class3)", "projected X (class4)", "projected Xtest"])
 
+figure(3)
+hold on
+gscatter(data_project(:, 1), data_project(:, 2), Y)
+% plot(projected_Xtest(:, 1), projected_Xtest(:, 2), 'LineStyle', 'none', 'Marker', '>')
+title('pca with gaussian kernel')
+xlabel('principal dim')
+ylabel('second dim')
+legend(["projected X (class1)", "projected X (class2)", "projected X (class3)", "projected X (class4)", "projected Xtest"])

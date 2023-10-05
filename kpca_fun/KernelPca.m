@@ -133,6 +133,7 @@ classdef KernelPca < handle
             % (if 'AutoScale' is true, each variable is scaled using its standard deviation)
             self.train_data = fit_params.train_data;
             fit_params.train_data = [];
+            % 进行标准化
             if islogical(fit_params.AutoScale) || isnumeric(fit_params.AutoScale)
                 if fit_params.AutoScale == true
                     self.auto_scale = true;
@@ -143,15 +144,18 @@ classdef KernelPca < handle
                     self.train_data = self.train_data .* self.scale;
                 end
             end
+            % 中心化
             self.mean_train_data = mean(self.train_data, 1);
             self.centered_train_data = self.train_data - self.mean_train_data;
             self.train_data_num = size(train_data, 1);
             
             % get gram_matrix
+            % 获得K矩阵
             self.train_gram_matrix = ...
                 kr(self.centered_train_data', self.centered_train_data', self.kernel, self.kernel_params);
             
             % get coeff
+            % 标准化
             LN = zeros(self.train_data_num, self.train_data_num);
             LN(:, :) = 1 / self.train_data_num;
             C = self.train_gram_matrix ...
@@ -179,10 +183,12 @@ classdef KernelPca < handle
             parse(p, data, dim);
             
             %subspace coefficient
+            % 获得K矩阵的特征向量
             subspace_coeff = self.coeff(:, 1:dim);
             
             % data is scaled and centered using training data information,
             % assuming that new data follows the same distribution as training data
+            % 对测试数据中心化 标准化
             if self.auto_scale == true
                 data = data .* self.scale;
             end
@@ -220,6 +226,7 @@ function K = kr(vector1, vector2, kernel, kernel_params)
     if kernel == "gaussian"
         K = zeros(size(vector1, 2), size(vector2, 2));
         for i = 1:size(vector1, 2)
+            % 每个元素求平方
             K(i, :) = exp(-kernel_params.gamma .* sqrt(sum((vector1(:, i) - vector2) .^ 2, 1) .^ 2));
         end
     elseif kernel == "polynomial"
